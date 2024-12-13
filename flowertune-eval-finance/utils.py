@@ -3,6 +3,17 @@ import os
 import datasets
 from datasets import Dataset
 
+alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+{}
+
+### Input:
+{}
+
+### Response:
+"""
+
 
 def load_data(dataset_path, name=None, concat=False, valid_set=None):
     dataset = datasets.load_dataset(dataset_path, name, trust_remote_code=True)
@@ -24,10 +35,14 @@ def load_data(dataset_path, name=None, concat=False, valid_set=None):
 
 
 def format_example(example: dict):
-    context = f"### Instruction: {example['instruction']}\n"
-    if example.get("input"):
-        context += f"### Input: {example['input']}\n"
-    context += "### Response: "
+    # context = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n"
+    # context = f"### Instruction: {example['instruction']}\n"
+    # if example.get("input"):
+    #     context += f"### Input: {example['input']}\n"
+    # context += "### Response: "
+    instructions = example["instruction"]
+    inputs       = example["input"]
+    alpaca_prompt.format(instruction, input)
     target = example["output"]
     return {"context": context, "target": target}
 
