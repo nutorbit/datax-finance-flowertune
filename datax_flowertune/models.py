@@ -46,7 +46,7 @@ def get_model(model_cfg: DictConfig):
                         "gate_proj", "up_proj", "down_proj",],
         lora_alpha = model_cfg.lora.peft_lora_alpha,
         lora_dropout = 0.075,
-        use_gradient_checkpointing = model_cfg.gradient_checkpointing
+        use_gradient_checkpointing = model_cfg.gradient_checkpointing,
         random_state = 3407,
     )
 
