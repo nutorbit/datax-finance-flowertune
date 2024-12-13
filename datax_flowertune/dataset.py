@@ -30,7 +30,7 @@ def formatting_prompts_func(examples):
     for instruction, input, output in zip(instructions, inputs, outputs):
         text = alpaca_prompt.format(instruction, input, output) + "<eos>"
         texts.append(text)
-    return { "text" : texts, }
+    return texts
 
 
 def get_tokenizer_and_data_collator_and_propt_formatting(model_name: str):
