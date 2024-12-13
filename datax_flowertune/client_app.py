@@ -42,6 +42,7 @@ class FlowerClient(NumPyClient):
         model_cfg: DictConfig,
         train_cfg: DictConfig,
         trainset,
+        formatting_prompts_func,
         tokenizer,
         data_collator,
         num_rounds,
@@ -53,6 +54,7 @@ class FlowerClient(NumPyClient):
         self.data_collator = data_collator
         self.num_rounds = num_rounds
         self.trainset = trainset
+        self.formatting_prompts_func = formatting_prompts_func
 
         # instantiate model
         self.model = get_model(model_cfg)
@@ -81,6 +83,7 @@ class FlowerClient(NumPyClient):
             max_seq_length=self.train_cfg.seq_length,
             train_dataset=self.trainset,
             data_collator=self.data_collator,
+            formatting_func=self.formatting_prompts_func,
             dataset_text_field="text",
         )
 
@@ -106,12 +109,14 @@ def client_fn(context: Context) -> FlowerClient:
     (
         tokenizer,
         data_collator,
+        formatting_prompts_func,
     ) = get_tokenizer_and_data_collator_and_propt_formatting(cfg.model.name)
 
     return FlowerClient(
         cfg.model,
         cfg.train,
         client_trainset,
+        formatting_prompts_func,
         tokenizer,
         data_collator,
         num_rounds,

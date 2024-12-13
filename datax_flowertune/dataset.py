@@ -48,13 +48,12 @@ def get_tokenizer_and_data_collator_and_propt_formatting(model_name: str):
         response_template_ids, tokenizer=tokenizer
     )
 
-    return tokenizer, data_collator
+    return tokenizer, data_collator, formatting_prompts_func
 
 
 def formatting(dataset):
     """Format dataset."""
     dataset["instruction"] = dataset["instruction"] + " " + dataset["input"]
-    dataset = dataset.map(formatting_prompts_func, batched = True)
     return dataset
 
 
