@@ -53,7 +53,6 @@ def get_tokenizer_and_data_collator_and_propt_formatting(model_name: str):
 
 def formatting(dataset):
     """Format dataset."""
-    dataset["instruction"] = dataset["instruction"] + " " + dataset["input"]
     return dataset
 
 

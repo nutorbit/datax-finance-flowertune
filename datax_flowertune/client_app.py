@@ -84,7 +84,6 @@ class FlowerClient(NumPyClient):
             train_dataset=self.trainset,
             data_collator=self.data_collator,
             formatting_func=self.formatting_prompts_func,
-            dataset_text_field="text",
         )
 
         # Do local training
