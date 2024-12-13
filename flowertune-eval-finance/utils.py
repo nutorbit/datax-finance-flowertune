@@ -42,7 +42,7 @@ def format_example(example: dict):
     # context += "### Response: "
     instructions = example["instruction"]
     inputs       = example["input"]
-    alpaca_prompt.format(instructions, inputs)
+    context = alpaca_prompt.format(instructions, inputs)
     target = example["output"]
     return {"context": context, "target": target}
 
