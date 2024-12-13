@@ -5,31 +5,39 @@ from flwr_datasets.partitioner import IidPartitioner
 from transformers import AutoTokenizer
 from trl import DataCollatorForCompletionOnlyLM
 
+from unsloth import FastLanguageModel
+
 FDS = None  # Cache FederatedDataset
 
 
-def formatting_prompts_func(example):
-    """Construct prompts."""
-    output_texts = []
-    # Constructing a standard Alpaca
-    # (https://github.com/tatsu-lab/stanford_alpaca#data-release) prompt
-    mssg = (
-        "Below is an instruction that describes a task. "
-        "Write a response that appropriately completes the request."
-    )
-    for i in range(len(example["instruction"])):
-        text = (
-            f"{mssg}\n### Instruction:\n{example['instruction'][i]}\n"
-            f"### Response: {example['response'][i]}"
-        )
-        output_texts.append(text)
-    return output_texts
+alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+{}
+
+### Input:
+{}
+
+### Response:
+{}"""
+
+
+def formatting_prompts_func(examples):
+    instructions = examples["instruction"]
+    inputs       = examples["input"]
+    outputs      = examples["output"]
+    texts = []
+    for instruction, input, output in zip(instructions, inputs, outputs):
+        text = alpaca_prompt.format(instruction, input, output) + "<eos>"
+        texts.append(text)
+    return { "text" : texts, }
 
 
 def get_tokenizer_and_data_collator_and_propt_formatting(model_name: str):
     """Get tokenizer, data_collator and prompt formatting."""
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_name, use_fast=True, padding_side="right"
+    _, tokenizer = FastLanguageModel.from_pretrained(
+        model_name = model_name,
+        load_in_4bit = True,
     )
     tokenizer.pad_token = tokenizer.eos_token
     response_template_with_context = "\n### Response:"  # alpaca response tag
@@ -40,23 +48,19 @@ def get_tokenizer_and_data_collator_and_propt_formatting(model_name: str):
         response_template_ids, tokenizer=tokenizer
     )
 
-    return tokenizer, data_collator, formatting_prompts_func
+    return tokenizer, data_collator
 
 
 def formatting(dataset):
     """Format dataset."""
     dataset["instruction"] = dataset["instruction"] + " " + dataset["input"]
+    dataset = dataset.map(formatting_prompts_func, batched = True)
     return dataset
 
 
 def reformat(dataset, llm_task):
     """Reformat datasets."""
-    dataset = dataset.rename_column("output", "response")
-    if llm_task in ["finance", "code"]:
-        dataset = dataset.map(formatting, remove_columns=["input"])
-    if llm_task == "medical":
-        dataset = dataset.remove_columns(["instruction"])
-        dataset = dataset.rename_column("input", "instruction")
+    dataset = dataset.map(formatting)
     return dataset
 
 

@@ -14,6 +14,8 @@ from peft import (
 from peft.utils import prepare_model_for_kbit_training
 from transformers import AutoModelForCausalLM, BitsAndBytesConfig
 
+from unsloth import FastLanguageModel
+
 from flwr.common.typing import NDArrays
 
 
@@ -31,37 +33,27 @@ def cosine_annealing(
 def get_model(model_cfg: DictConfig):
     """Load model with appropriate quantization config and other optimizations.
     """
-    if model_cfg.quantization == 4:
-        quantization_config = BitsAndBytesConfig(load_in_4bit=True)
-    elif model_cfg.quantization == 8:
-        quantization_config = BitsAndBytesConfig(load_in_8bit=True)
-    else:
-        raise ValueError(
-            f"Use 4-bit or 8-bit quantization. You passed: {model_cfg.quantization}/"
-        )
-
-    model = AutoModelForCausalLM.from_pretrained(
-        model_cfg.name,
-        quantization_config=quantization_config,
-        torch_dtype=torch.bfloat16,
-        low_cpu_mem_usage=True,
+    
+    model, _ = FastLanguageModel.from_pretrained(
+        model_name = model_cfg.name,
+        load_in_4bit = True,
     )
-
-    model = prepare_model_for_kbit_training(
-        model, use_gradient_checkpointing=model_cfg.gradient_checkpointing
-    )
-
-    peft_config = LoraConfig(
-        r=model_cfg.lora.peft_lora_r,
-        lora_alpha=model_cfg.lora.peft_lora_alpha,
-        lora_dropout=0.075,
-        task_type="CAUSAL_LM",
+    
+    model = FastLanguageModel.get_peft_model(
+        model,
+        r = model_cfg.lora.peft_lora_r,
+        target_modules = ["q_proj", "k_proj", "v_proj", "o_proj",
+                        "gate_proj", "up_proj", "down_proj",],
+        lora_alpha = model_cfg.lora.peft_lora_alpha,
+        lora_dropout = 0.075,
+        use_gradient_checkpointing = model_cfg.gradient_checkpointing
+        random_state = 3407,
     )
 
     if model_cfg.gradient_checkpointing:
         model.config.use_cache = False
 
-    return get_peft_model(model, peft_config)
+    return model
 
 
 def set_parameters(model, parameters: NDArrays) -> None:

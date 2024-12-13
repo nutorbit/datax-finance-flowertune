@@ -43,7 +43,6 @@ class FlowerClient(NumPyClient):
         train_cfg: DictConfig,
         trainset,
         tokenizer,
-        formatting_prompts_func,
         data_collator,
         num_rounds,
     ):  # pylint: disable=too-many-arguments
@@ -51,7 +50,6 @@ class FlowerClient(NumPyClient):
         self.train_cfg = train_cfg
         self.training_argumnets = TrainingArguments(**train_cfg.training_arguments)
         self.tokenizer = tokenizer
-        self.formatting_prompts_func = formatting_prompts_func
         self.data_collator = data_collator
         self.num_rounds = num_rounds
         self.trainset = trainset
@@ -82,8 +80,8 @@ class FlowerClient(NumPyClient):
             args=self.training_argumnets,
             max_seq_length=self.train_cfg.seq_length,
             train_dataset=self.trainset,
-            formatting_func=self.formatting_prompts_func,
             data_collator=self.data_collator,
+            dataset_text_field="text",
         )
 
         # Do local training
@@ -108,7 +106,6 @@ def client_fn(context: Context) -> FlowerClient:
     (
         tokenizer,
         data_collator,
-        formatting_prompts_func,
     ) = get_tokenizer_and_data_collator_and_propt_formatting(cfg.model.name)
 
     return FlowerClient(
@@ -116,7 +113,6 @@ def client_fn(context: Context) -> FlowerClient:
         cfg.train,
         client_trainset,
         tokenizer,
-        formatting_prompts_func,
         data_collator,
         num_rounds,
     ).to_client()
