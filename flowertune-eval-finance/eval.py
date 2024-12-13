@@ -4,6 +4,8 @@ import torch
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
+from unsloth import FastLanguageModel
+
 from benchmarks import infer_fiqa, infer_fpb, infer_tfns
 
 # Fixed seed
@@ -21,30 +23,14 @@ parser.add_argument("--quantization", type=int, default=4)
 args = parser.parse_args()
 
 
-# Load model and tokenizer
-if args.quantization == 4:
-    quantization_config = BitsAndBytesConfig(load_in_4bit=True)
-    torch_dtype = torch.float32
-elif args.quantization == 8:
-    quantization_config = BitsAndBytesConfig(load_in_8bit=True)
-    torch_dtype = torch.float16
-else:
-    raise ValueError(
-        f"Use 4-bit or 8-bit quantization. You passed: {args.quantization}/"
-    )
-
-model = AutoModelForCausalLM.from_pretrained(
-    args.base_model_name_path,
-    quantization_config=quantization_config,
-    torch_dtype=torch_dtype,
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name = args.peft_path,
+    max_seq_length = max_seq_length,
+    dtype = dtype,
+    load_in_4bit = load_in_4bit,
 )
-if args.peft_path is not None:
-    print(args.peft_path)
-    model = PeftModel.from_pretrained(
-        model, args.peft_path, torch_dtype=torch_dtype
-    ).to("cuda")
 
-tokenizer = AutoTokenizer.from_pretrained(args.base_model_name_path)
+FastLanguageModel.for_inference(model)
 
 if not tokenizer.pad_token or tokenizer.pad_token_id == tokenizer.eos_token_id:
     tokenizer.add_special_tokens({"pad_token": "[PAD]"})

@@ -24,10 +24,10 @@ def load_data(dataset_path, name=None, concat=False, valid_set=None):
 
 
 def format_example(example: dict):
-    context = f"Instruction: {example['instruction']}\n"
+    context = f"### Instruction: {example['instruction']}\n"
     if example.get("input"):
-        context += f"Input: {example['input']}\n"
-    context += "Answer: "
+        context += f"### Input: {example['input']}\n"
+    context += "### Response: "
     target = example["output"]
     return {"context": context, "target": target}
 
