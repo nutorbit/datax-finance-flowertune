@@ -26,7 +26,7 @@ flwr run .
 
 Our approach, we use [Qwen2.5 7B](https://huggingface.co/Qwen/Qwen2.5-7B) as a pretrained LLM and fine-tune the model with 4bit quantization and [DoRA adapter](https://arxiv.org/abs/2402.09353) as Parameter-Efficient Fine-Tuning (PEFT) technique. Aggregation is performed using the **FedAvg** strategy.
 
-Here is the checkpoint of the model: [link](https://drive.google.com/drive/folders/1ArOfC82H0E5GAqM4WxAAKlM7HcamHS61?usp=sharing)
+Here is the checkpoint of the model: [link](https://drive.google.com/drive/folders/1ArOfC82H0E5GAqM4WxAAKlM7HcamHS61?usp=sharing), tested using `peft_10`.
 
 Configs:
 * Quantization: 4 bits
