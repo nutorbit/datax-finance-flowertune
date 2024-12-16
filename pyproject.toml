@@ -32,7 +32,7 @@ serverapp = "datax_flowertune.server_app:app"
 clientapp = "datax_flowertune.client_app:app"
 
 [tool.flwr.app.config]
-model.name = "instruction-pretrain/finance-Llama3-8B"
+model.name = "allenai/Llama-3.1-Tulu-3-8B"
 model.quantization = 4
 model.gradient-checkpointing = true
 model.lora.peft-lora-r = 16
@@ -44,7 +44,7 @@ train.learning-rate-min = 1e-6
 train.seq-length = 512
 train.training-arguments.output-dir = ""
 train.training-arguments.learning-rate = ""
-train.training-arguments.per-device-train-batch-size = 4
+train.training-arguments.per-device-train-batch-size = 8
 train.training-arguments.gradient-accumulation-steps = 1
 train.training-arguments.logging-steps = 10
 train.training-arguments.num-train-epochs = 3
