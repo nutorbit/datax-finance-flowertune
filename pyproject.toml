@@ -32,11 +32,11 @@ serverapp = "datax_flowertune.server_app:app"
 clientapp = "datax_flowertune.client_app:app"
 
 [tool.flwr.app.config]
-model.name = "allenai/Llama-3.1-Tulu-3-8B"
+model.name = "Qwen/Qwen2.5-7B"
 model.quantization = 4
 model.gradient-checkpointing = true
-model.lora.peft-lora-r = 16
-model.lora.peft-lora-alpha = 64
+model.lora.peft-lora-r = 8
+model.lora.peft-lora-alpha = 32
 model.seq-length = 512
 train.save-every-round = 5
 train.learning-rate-max = 5e-5
