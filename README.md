@@ -42,3 +42,4 @@ Configs:
 * TFNS: 67.50%
 * Average: 65.52%
 
+You can check `/flowertune-eval-finance/benchmarks` folder to get raw results.
